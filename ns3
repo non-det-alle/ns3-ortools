@@ -1,0 +1,10 @@
+#!/bin/sh
+
+CWD="$PWD"
+cd $NS3DIR >/dev/null
+if [ "$1" = "run" ]; then
+	./ns3 "$@" --cwd "$CWD" 
+else
+	./ns3 "$@"
+fi
+cd - >/dev/null
