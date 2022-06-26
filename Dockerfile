@@ -111,13 +111,14 @@ RUN curl -sSL https://install.python-poetry.org | python3 - && \
     git clone https://github.com/non-det-alle/sem.git && \
     cd sem && poetry install && poetry build && \
     tar -xvf dist/*.tar.gz --wildcards --no-anchored '*/setup.py' --strip=1 && \
-    pip install . && cd .. && rm -rf sem
+    pip install . && cd .. && rm -rf sem && echo yes | poetry cache clear --all .
 
-RUN pip install seaborn
+RUN pip install seaborn ipykernel
 
 # Install ns-3
-RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git && \
-    fix-permissions 
+RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git
+    
+RUN fix-permissions "${HOME}"
 
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
