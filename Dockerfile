@@ -97,31 +97,53 @@ RUN chmod a+rx /usr/local/bin/ns3
 
 WORKDIR "${HOME}"
 
-# Install OR-Tools
+# Install OR-Tools (root needed for install)
 RUN git clone https://github.com/google/or-tools && \
     cd or-tools && make third_party && make cc && make install_cc && cd .. && \
     rm -rf or-tools
 
 USER ${NB_UID}
 
+# Install ns-3 with OR-Tools support
+RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git && \
+    fix-permissions "${HOME}/ns-3-dev"
+
+# Install modified sem that works with recent ./ns3 script
+RUN git clone https://github.com/non-det-alle/sem.git && \
+    cd sem && \
+    pip install poetry2setup && \
+    poetry2setup > setup.py && \
+    pip uninstall -y\
+    poetry2setup \
+    poetry_core && \
+    pip install . && \
+    cd .. && \ 
+    rm -rf sem
+
+# Install useful python packages
+RUN pip install \
+    seaborn \ 
+    ipykernel \
+    notebook \
+    jupyterlab && \
+    pip cache purge && \
+    jupyter lab --generate-config
+
+# Back to root to fix permissions correctly after importing files in user space
+USER root
+
+COPY jupyter_lab_config.py ${HOME}/.jupyter/
+
 COPY .bashrc ${HOME}/.bashrc
 
-# Install poetry and sem 
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    git clone https://github.com/non-det-alle/sem.git && \
-    cd sem && poetry install && poetry build && \
-    tar -xvf dist/*.tar.gz --wildcards --no-anchored '*/setup.py' --strip=1 && \
-    pip install . && cd .. && rm -rf sem && echo yes | poetry cache clear --all .
+# Setup work directory for backward-compatibility
+RUN mkdir "${HOME}/work" && \
+    fix-permissions "${HOME}"
 
-RUN pip install seaborn ipykernel
-
-# Install ns-3
-RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git
+USER ${NB_UID}
     
-RUN fix-permissions "${HOME}"
+EXPOSE 8888
 
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["/bin/bash"]
-
-#RUN fix-permissions "${HOME}"
