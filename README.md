@@ -1,5 +1,6 @@
 # Ns-3 and OR-Tools experimentation suite
 Dockerfiles to build the `ns3-ortools-experiment-suite` docker container.
+
 Pull it with `docker pull nondetalle/ns3-ortools-experiment-suite:latest`.
 
 The built image contains an installation of the [Ns-3](https://gitlab.com/non-det-alle/ns-3-dev) network simulator, Google's [OR-Tools](https://github.com/google/or-tools) optimization library, and the Simulation Execution Manager ([SEM](https://github.com/non-det-alle/sem)) package to run Ns-3 experiments campaigns.  OR-Tools bindings are integrated in Ns-3 via a modified `./ns3` Cmake wrapper and can be used in Ns-3 classes. 
