@@ -96,7 +96,7 @@ ENV SHELL=/bin/bash \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
 ENV HOME="/home/${NB_USER}" \
-    PATH="$HOME/.bin:${HOME}/.local/bin:${PATH}"
+    PATH="${HOME}/.bin:${HOME}/.local/bin:${PATH}"
 
 # Copy a script that we will use to correct permissions after running certain commands
 COPY fix-permissions /usr/local/bin/fix-permissions
