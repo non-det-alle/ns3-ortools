@@ -116,11 +116,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# user envirnomental variables
-export PATH=$HOME/.bin:$HOME/.local/bin:$PATH
-export NS3DIR=$HOME/ns-3-dev/
-export LD_LIBRARY_PATH="/usr/local/lib/"
-
 # better tab autocompletion
 bind 'set show-all-if-ambiguous on'
 bind 'TAB:menu-complete'
