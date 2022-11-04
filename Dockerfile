@@ -95,8 +95,9 @@ ENV SHELL=/bin/bash \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
-ENV HOME="/home/${NB_USER}" \
-    PATH="${HOME}/.bin:${HOME}/.local/bin:${PATH}"
+ENV HOME="/home/${NB_USER}"
+# Separate to be able to use HOME var
+ENV PATH="${HOME}/.bin:${HOME}/.local/bin:${PATH}"
 
 # Copy a script that we will use to correct permissions after running certain commands
 COPY fix-permissions /usr/local/bin/fix-permissions
@@ -144,8 +145,8 @@ CMD ["start-notebook.sh"]
 
 USER root
 
-ENV NS3DIR="${HOME}/ns-3-dev/"
-ENV LD_LIBRARY_PATH="/usr/local/lib/"
+ENV NS3DIR="${HOME}/ns-3-dev/" \
+    LD_LIBRARY_PATH="/usr/local/lib/"
 
 # Install OR-Tools (root needed for install)
 WORKDIR /tmp
