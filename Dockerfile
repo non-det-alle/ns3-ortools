@@ -153,8 +153,8 @@ WORKDIR /tmp
 RUN git clone https://github.com/google/or-tools && \
     cd or-tools && \
     git checkout 2cb85b4e && \
-    make third_party
-RUN make cc && \
+    make third_party && \
+    make cc && \
     make install_cc && \
     cd .. && \
     rm -rf or-tools
