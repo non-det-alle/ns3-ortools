@@ -152,7 +152,6 @@ ENV NS3DIR="${HOME}/ns-3-dev/" \
 WORKDIR /tmp
 RUN git clone https://github.com/non-det-alle/or-tools && \
     cd or-tools && \
-    git checkout 2cb85b4e && \
     make third_party && \
     make cc
 RUN make install_cc && \
