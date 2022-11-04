@@ -150,12 +150,12 @@ ENV NS3DIR="${HOME}/ns-3-dev/" \
 
 # Install OR-Tools (root needed for install)
 WORKDIR /tmp
-RUN git clone https://github.com/google/or-tools && \
+RUN git clone https://github.com/non-det-alle/or-tools && \
     cd or-tools && \
     git checkout 2cb85b4e && \
     make third_party && \
-    make cc && \
-    make install_cc && \
+    make cc
+RUN make install_cc && \
     cd .. && \
     rm -rf or-tools
 
