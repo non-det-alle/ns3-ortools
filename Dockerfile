@@ -137,16 +137,26 @@ USER ${NB_UID}
 
 WORKDIR "${HOME}"
 
-# Setup work directory for backward-compatibility
-# Install Jupyter Notebook and Lab
+# Setup work directory
+# Install Jupyter Notebook, Lab, and Seaborn
+# Install modified sem that works with recent ./ns3 script
+# Cleanup packages, temporary files and pip cache
 # Generate a notebook server config
-# Cleanup temporary files and clean Pip cache
-# Correct permissions
+# Correct permissions on home dir
 RUN mkdir "${HOME}/work" && \
     pip install \
-    seaborn \
     notebook \
-    jupyterlab && \
+    jupyterlab \
+    seaborn \
+    poetry2setup && \
+    git clone https://github.com/non-det-alle/sem.git && \
+    cd sem && \
+    poetry2setup > setup.py && \
+    pip install -e . && \
+    cd .. && \ 
+    pip uninstall -y\
+    poetry2setup \
+    poetry_core && \    
     pip cache purge && \
     jupyter notebook --generate-config && \
     jupyter lab clean && \
@@ -161,18 +171,6 @@ RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git && \
     cd .. && \
     fix-permissions "${NS3DIR}"
 
-# Install modified sem that works with recent ./ns3 script
-RUN git clone https://github.com/non-det-alle/sem.git && \
-    cd sem && \
-    pip install poetry2setup && \
-    poetry2setup > setup.py && \
-    pip uninstall -y\
-    poetry2setup \
-    poetry_core && \
-    pip install -e . && \
-    cd .. && \ 
-    fix-permissions "${HOME}/sem"
-
 EXPOSE 8888
 
 # Configure container startup
@@ -180,7 +178,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # Copy local files as late as possible to avoid cache busting
-COPY start.sh start-notebook.sh start-singleuser.sh ns3 /usr/local/bin/
+COPY start.sh start-notebook.sh ns3 /usr/local/bin/
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
 COPY jupyter_server_config.py ${HOME}/.jupyter/
 # Import useful bash configuration
