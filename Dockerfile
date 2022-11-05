@@ -82,7 +82,7 @@ RUN PYTHON_SPECIFIER="python${PYTHON_VERSION}" && \
     libtool \
     zlib1g-dev \
     lsb-release \
-    libcurlpp-dev && \
+    libcurlpp-dev \
     htop && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
