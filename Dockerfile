@@ -152,9 +152,9 @@ ENV NS3DIR="${HOME}/ns-3-dev" \
 WORKDIR /tmp
 RUN git clone https://github.com/non-det-alle/or-tools && \
     cd or-tools && \
-    make -j third_party && \
-    make -j cc && \
-    make -j install_cc && \
+    make -j4 third_party && \
+    make -j4 cc && \
+    make -j4 install_cc && \
     cd .. && \
     rm -rf or-tools
 
