@@ -152,16 +152,19 @@ ENV NS3DIR="${HOME}/ns-3-dev" \
 WORKDIR /tmp
 RUN git clone https://github.com/non-det-alle/or-tools && \
     cd or-tools && \
-    make third_party 
-RUN cd or-tools && \
-    make cc && \
-    make install_cc && \
+    make -j third_party && \
+    make -j cc && \
+    make -j install_cc && \
     cd .. && \
     rm -rf or-tools
 
 # Setup script for ns3
 COPY ns3 /usr/local/bin/ns3
 RUN chmod a+rx /usr/local/bin/ns3
+
+# Import useful bash configuration
+COPY .bashrc ${HOME}/.bashrc
+RUN chmod g+rw ${HOME}/.bashrc
 
 ################################################################### USER CHANGE
 
@@ -186,9 +189,6 @@ RUN git clone https://github.com/non-det-alle/sem.git && \
     cd .. && \ 
     fix-permissions "${HOME}/sem"
 
-# Import useful bash configuration
-COPY .bashrc ${HOME}/.bashrc
-RUN chmod g+rw ${HOME}/.bashrc
 # Copy local files as late as possible to avoid cache busting
 COPY start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
