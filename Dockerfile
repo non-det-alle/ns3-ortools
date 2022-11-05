@@ -166,6 +166,11 @@ WORKDIR "${HOME}"
 
 # Install ns-3 with OR-Tools support
 RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git && \
+    cd ns-3-dev && \
+    ./ns3 configure --enable-examples --disable-gtk --disable-werror \
+    -d optimized --out=build/optimized && \
+    ./ns3 build && \
+    cd .. && \
     fix-permissions "${NS3DIR}"
 
 # Install modified sem that works with recent ./ns3 script
