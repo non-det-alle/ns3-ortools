@@ -158,17 +158,8 @@ RUN git clone https://github.com/non-det-alle/or-tools && \
     cd .. && \
     rm -rf or-tools
 
-# Setup script for ns3
-COPY ns3 /usr/local/bin/ns3
-RUN chmod a+rx /usr/local/bin/ns3
-
-# Import useful bash configuration
-COPY .bashrc ${HOME}/.bashrc
-RUN chmod g+rw ${HOME}/.bashrc
-
 ################################################################### USER CHANGE
 
-# Switch back to user to avoid accidental container runs as root
 USER ${NB_UID}
 
 WORKDIR "${HOME}"
@@ -193,11 +184,23 @@ RUN git clone https://github.com/non-det-alle/sem.git && \
 COPY start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
 COPY jupyter_server_config.py ${HOME}/.jupyter/
+# Setup script for ns3
+COPY ns3 /usr/local/bin/ns3
+# Import useful bash configuration
+COPY .bashrc ${HOME}/.bashrc
+
+################################################################### USER CHANGE
+
+# Fix permissions as root
+USER root
 
 # Legacy for Jupyter Notebook Server, see: [#1205](https://github.com/jupyter/docker-stacks/issues/1205)
 RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
     ${HOME}/.jupyter/jupyter_server_config.py > ${HOME}/.jupyter/jupyter_notebook_config.py && \
     fix-permissions "${HOME}/.jupyter"
+
+RUN chmod a+rx /usr/local/bin/ns3 && \
+    chmod g+rw ${HOME}/.bashrc
 
 # HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
 # This healtcheck works well for `lab`, `notebook`, `nbclassic`, `server` and `retro` jupyter commands
@@ -205,3 +208,8 @@ RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
 HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
     http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
+
+################################################################### USER CHANGE
+
+# Switch back to user to avoid accidental container runs as root
+USER ${NB_UID}
