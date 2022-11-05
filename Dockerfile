@@ -96,9 +96,13 @@ ENV SHELL=/bin/bash \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
-ENV HOME="/home/${NB_USER}"
-# Separate to be able to use HOME var
-ENV PATH="${HOME}/.bin:${HOME}/.local/bin:${PATH}"
+ENV HOME="/home/${NB_USER}" \
+    # Python directory
+    PATH="/home/${NB_USER}/.local/bin:${PATH}" \
+    # Ns-3 directory
+    NS3DIR="/home/${NB_USER}/ns-3-dev" \
+    # OR-Tools directory
+    LD_LIBRARY_PATH="/usr/local/lib"
 
 # Copy a script that we will use to correct permissions after running certain commands
 COPY fix-permissions /usr/local/bin/fix-permissions
@@ -116,9 +120,22 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
 # Create alternative for nano -> nano-tiny
 RUN update-alternatives --install /usr/bin/nano nano /bin/nano-tiny 10
 
+WORKDIR /tmp
+
+# Install OR-Tools (root needed for install)
+RUN git clone https://github.com/non-det-alle/or-tools && \
+    cd or-tools && \
+    make -j4 third_party && \
+    make -j4 cc && \
+    make -j4 install_cc && \
+    cd .. && \
+    rm -rf or-tools
+
 ################################################################### USER CHANGE
 
 USER ${NB_UID}
+
+WORKDIR "${HOME}"
 
 # Setup work directory for backward-compatibility
 # Install Jupyter Notebook and Lab
@@ -134,35 +151,6 @@ RUN mkdir "${HOME}/work" && \
     jupyter notebook --generate-config && \
     jupyter lab clean && \
     fix-permissions "${HOME}"
-
-EXPOSE 8888
-
-# Configure container startup
-ENTRYPOINT ["tini", "-g", "--"]
-CMD ["start-notebook.sh"]
-
-################################################################### USER CHANGE
-
-USER root
-
-ENV NS3DIR="${HOME}/ns-3-dev" \
-    LD_LIBRARY_PATH="/usr/local/lib"
-
-# Install OR-Tools (root needed for install)
-WORKDIR /tmp
-RUN git clone https://github.com/non-det-alle/or-tools && \
-    cd or-tools && \
-    make -j4 third_party && \
-    make -j4 cc && \
-    make -j4 install_cc && \
-    cd .. && \
-    rm -rf or-tools
-
-################################################################### USER CHANGE
-
-USER ${NB_UID}
-
-WORKDIR "${HOME}"
 
 # Install ns-3 with OR-Tools support
 RUN git clone https://gitlab.com/non-det-alle/ns-3-dev.git && \
@@ -185,14 +173,18 @@ RUN git clone https://github.com/non-det-alle/sem.git && \
     cd .. && \ 
     fix-permissions "${HOME}/sem"
 
+EXPOSE 8888
+
+# Configure container startup
+ENTRYPOINT ["tini", "-g", "--"]
+CMD ["start-notebook.sh"]
+
 # Copy local files as late as possible to avoid cache busting
-COPY start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
+COPY start.sh start-notebook.sh start-singleuser.sh ns3 /usr/local/bin/
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
 COPY jupyter_server_config.py ${HOME}/.jupyter/
-# Setup script for ns3
-COPY ns3 /usr/local/bin/ns3
 # Import useful bash configuration
-COPY .bashrc ${HOME}/.bashrc
+COPY .bashrc ${HOME}/
 
 ################################################################### USER CHANGE
 
@@ -202,9 +194,7 @@ USER root
 # Legacy for Jupyter Notebook Server, see: [#1205](https://github.com/jupyter/docker-stacks/issues/1205)
 RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
     ${HOME}/.jupyter/jupyter_server_config.py > ${HOME}/.jupyter/jupyter_notebook_config.py && \
-    fix-permissions "${HOME}/.jupyter"
-
-RUN chmod a+rx /usr/local/bin/ns3 && \
+    fix-permissions "${HOME}/.jupyter" && \
     fix-permissions "${HOME}/.bashrc"
 
 # HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
