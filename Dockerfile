@@ -153,7 +153,7 @@ WORKDIR /tmp
 RUN git clone https://github.com/non-det-alle/or-tools && \
     cd or-tools && \
     make third_party 
-RUN git log && \
+RUN cd or-tools && git log && \
     make install_cc && \
     cd .. && \
     rm -rf or-tools
