@@ -200,7 +200,7 @@ RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
     fix-permissions "${HOME}/.jupyter"
 
 RUN chmod a+rx /usr/local/bin/ns3 && \
-    chmod g+rw ${HOME}/.bashrc
+    fix-permissions "${HOME}/.bashrc"
 
 # HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
 # This healtcheck works well for `lab`, `notebook`, `nbclassic`, `server` and `retro` jupyter commands
