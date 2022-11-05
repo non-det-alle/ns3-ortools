@@ -145,8 +145,8 @@ CMD ["start-notebook.sh"]
 
 USER root
 
-ENV NS3DIR="${HOME}/ns-3-dev/" \
-    LD_LIBRARY_PATH="/usr/local/lib/"
+ENV NS3DIR="${HOME}/ns-3-dev" \
+    LD_LIBRARY_PATH="/usr/local/lib"
 
 # Install OR-Tools (root needed for install)
 WORKDIR /tmp
