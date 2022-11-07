@@ -12,6 +12,6 @@ The image runs jupyter-lab by default, following the configuration from jupyter'
 ## Usage:
 If you are familiar with Ns-3 workflow, nothing is changed. After running and attaching to the image  (`docker run -ti IMAGE_NAME`), your simulations and modules can be copied in the Ns-3 folders (`/home/ns3/ns-3-dev`) or imported there as an external volume (`-v` option), and Ns-3 can be built [directly](https://www.nsnam.org/docs/tutorial/html/getting-started.html#building-with-the-ns3-cmake-wrapper) or via SEM. 
 
-To use jupyter lab from outside run with `-p 8888:8888`. To work on persistent data run with the `-v /your/dir/path:/home/ns3/work` option. For more options checkout the [jupyter-docker-stacks documentation](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/common.html).
+To use jupyter lab from outside run with `-p 8888:8888`. To work on persistent data run with the `-v /your/dir/path:/home/ns3/work` option. For more options checkout the [jupyter's docker-stacks documentation](https://jupyter-docker-stacks.readthedocs.io/en/latest/using/common.html).
 
 For more info refer directly to the documentations of linked software.
